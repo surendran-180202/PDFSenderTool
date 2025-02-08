@@ -1,122 +1,147 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using PDFSender.Common;
 using PDFSender.Common.Data;
-using System.IO;
-using Microsoft.AspNetCore.Components;
-using System.Net.Mail;
-using System.Net;
-using System;
 
 namespace PDFSender.Web.Components.Pages;
 
 public partial class Home
 {
-    private EmailConfiguration emailConfiguration = new EmailConfiguration();
-    private List<EmailConfiguration> liEmailConfigurationCollection = new List<EmailConfiguration>();
+    private readonly EmailConfiguration _emailConfiguration = new();
+    private readonly List<EmailConfiguration> _liEmailConfigurationCollection = new();
 
-    private string MainPath { get; set; }
+    private string? MainPath { get; set; } = string.Empty;
+
+    private string PdfFilePath { get; set; } = string.Empty;
+    private bool ShowPdfView { get; set; }
+    private bool ShowUpdateView { get; set; }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
-        emailConfiguration.Username = "msindialeave@gmail.com";
-        emailConfiguration.Password = "wxmq bhll fxap amad";
-        emailConfiguration.Subject = "Test Subject";
-        emailConfiguration.Content = "Test Content";
+        _emailConfiguration.Username = "msindialeave@gmail.com";
+        _emailConfiguration.Password = "wxmq bhll fxap amad";
+        _emailConfiguration.Subject = "Test Subject";
+        _emailConfiguration.Content = "Test Content";
     }
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {
-        IBrowserFile file = e.File;
+        var file = e.File;
 
-        using Stream stream = file.OpenReadStream(maxAllowedSize: 10485760);
+        await using var stream = file.OpenReadStream(10485760);
 
         await OnConvertToText(stream);
 
-        using MemoryStream ms = new MemoryStream();
-        await file.OpenReadStream(maxAllowedSize: 10485760).CopyToAsync(ms);
-        byte[] buffer = ms.ToArray();
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(10485760).CopyToAsync(ms);
+        var buffer = ms.ToArray();
 
-        await OnAddEmailAttachment(buffer, file.Name);
+        OnAddEmailAttachment(buffer, file.Name);
 
-        liEmailConfigurationCollection.Add(emailConfiguration);
+        _liEmailConfigurationCollection.Add(_emailConfiguration);
     }
 
     private async Task OnPastePath(ChangeEventArgs args)
     {
-        MainPath = args.Value.ToString();
+        MainPath = args.Value?.ToString();
 
-        AddEmailConfigurationCollection();
+        await AddEmailConfigurationCollection();
     }
 
-    private void AddEmailConfigurationCollection()
+    private Task AddEmailConfigurationCollection()
     {
-        if(string.IsNullOrEmpty(MainPath)) return;
-
-        string[] strPdfFiles = Directory.GetFiles(MainPath, "*.pdf", SearchOption.AllDirectories);
-
-        foreach (string strPdfFile in strPdfFiles)
+        if (!string.IsNullOrEmpty(MainPath))
         {
-            Services services = new Services();
-            string filePath = strPdfFile.Replace("\\", @"\");
-            string[] strPdfText = services.ConvertToText(filePath);
+            string[] strPdfFiles = Directory.GetFiles(MainPath, "*.pdf", SearchOption.AllDirectories);
 
-            EmailConfiguration email = new EmailConfiguration()
+            foreach (var strPdfFile in strPdfFiles)
             {
-                Username = emailConfiguration.Username,
-                Password = emailConfiguration.Password,
-                Subject = emailConfiguration.Subject,
-                Content = emailConfiguration.Content,
-                Receivers = strPdfText,
+                var services = new Services();
+                var filePath = strPdfFile.Replace("\\", @"\");
+                string[] strPdfText = services.ConvertToText(filePath);
 
-                Attachment = new FileConfiguration()
+                var email = new EmailConfiguration
                 {
-                    FilePath = filePath,
-                    FileName = Path.GetFileName(filePath),
-                },
-            };
+                    Username = _emailConfiguration.Username,
+                    Password = _emailConfiguration.Password,
+                    Subject = _emailConfiguration.Subject,
+                    Content = _emailConfiguration.Content,
+                    Receivers = strPdfText,
 
-            liEmailConfigurationCollection.Add(email);
+                    Attachment = new FileConfiguration
+                    {
+                        FilePath = filePath,
+                        FileName = Path.GetFileName(filePath)
+                    }
+                };
+
+                _liEmailConfigurationCollection.Add(email);
+            }
         }
+
+        return Task.CompletedTask;
     }
 
     private void OnSubmit()
     {
-        Services services = new Services();
-       // services.SendEmail(liEmailConfigurationCollection.ToArray());
-    }  
+        var services = new Services();
+        services.SendEmail(_liEmailConfigurationCollection.ToArray());
+    }
 
     private async Task OnConvertToText(Stream pdfStream)
     {
-        using MemoryStream memoryStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
         await pdfStream.CopyToAsync(memoryStream);
 
-        Services services = new Services();
-        emailConfiguration.Receivers = services.ConvertToText(memoryStream);
+        var services = new Services();
+        _emailConfiguration.Receivers = services.ConvertToText(memoryStream);
 
         //Using File Path
         //emailConfiguration.Receivers = services.ConvertToText(@"E:\Temp\Test1.pdf");
     }
 
-    private async Task OnAddEmailAttachment(byte[] pdfStream, string strFileName)
+    private void OnAddEmailAttachment(byte[] pdfStream, string strFileName)
     {
-        emailConfiguration.Attachment = new FileConfiguration()
+        _emailConfiguration.Attachment = new FileConfiguration
         {
             FileName = strFileName,
-            Attachment = pdfStream,
+            Attachment = pdfStream
         };
     }
 
     private void OnDelete(EmailConfiguration deletableEmail)
     {
-        liEmailConfigurationCollection.Remove(deletableEmail);
+        _liEmailConfigurationCollection.Remove(deletableEmail);
     }
 
     private void OnUpdate()
     {
-        this.liEmailConfigurationCollection.Clear();
+        _liEmailConfigurationCollection.Clear();
 
         AddEmailConfigurationCollection();
+    }
+
+    private void OnShowPDFView(FileConfiguration? fileConfiguration)
+    {
+        if (fileConfiguration == null) return;
+
+        ShowPdfView = true;
+
+        PdfFilePath = fileConfiguration.FilePath;
+    }
+
+    private void OnShowUpdateView()
+    {
+        if (string.IsNullOrEmpty(MainPath) && Js != null)
+        {
+            Js.InvokeVoidAsync("InitiateAlert", "Please select the Pdf file");
+
+            return;
+        }
+
+        ShowUpdateView = true;
     }
 }

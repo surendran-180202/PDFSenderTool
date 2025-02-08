@@ -1,8 +1,6 @@
 ﻿@page "/"
 @using PDFSender.Common.Data
 
-@inject IJSRuntime JS
-
 @rendermode InteractiveServer
 
 <h3>PDF To Email Sender</h3>
@@ -14,89 +12,111 @@
 
 <div class="email-container">
 
-    <div class="row">
-        <div class="col-md-8">
 
-            <div>
-                <div class="container">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr class="tr">
-                                    <th scope="col" class="th">Subject</th>
-                                    <th scope="col" class="th">Content</th>
-                                    <th scope="col" class="th">Display Name</th>
-                                    <th scope="col" class="th">Receiver</th>
-                                    <th scope="col" class="th">FilePath</th>
-                                    <th scope="col" class="th">FileName</th>
-                                    <th scope="col" class="th">Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+    @if (ShowUpdateView)
+    {
+        <div class="MainContainer MainContainer--blur" id="MainContainer">
 
-                                @foreach (EmailConfiguration email in liEmailConfigurationCollection)
-                                {
-                                    <tr class="tr">
-                                        <td class="noBorder">@email.Subject</td>
-                                        <td class="noBorder">@email.Content</td>
-                                        <td class="noBorder">@email.DisplayName</td>
-                                        <td class="noBorder">
-                                            @foreach (string strReceiver in email.Receivers)
-                                            {
-                                                <span>@strReceiver</span>
-
-                                                <br />
-                                            }
-                                        </td>
-                                        <td class="noBorder">
-                                            @if (email.Attachment != null)
-                                            {
-                                                @email.Attachment.FilePath
-                                            }
-                                        </td>
-                                        <td class="noBorder">
-                                            @if (email.Attachment != null)
-                                            {
-                                                @email.Attachment.FileName
-                                            }
-                                        </td>
-
-                                        <td class="noBorder">
-                                            <span class="svg-delete" @onclick="@(() => OnDelete(email))"></span>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="Right">
+                <button @onclick='() => ShowUpdateView = false' class="btn-default">Close</button>
             </div>
 
-        </div>
-        <div class="col-md-4 form-box">
-            <label>Email ID</label>
-            <input type="text" class="form-text" placeholder="Enter your Email ID " @bind=@emailConfiguration.Username /><br />
+            <div class="col-md-4 form-box center">
+                <label>Email ID</label>
+                <input type="text" class="form-text" placeholder="Enter your Email ID " @bind=@_emailConfiguration.Username /><br />
 
-            <label>Pass Key</label>
-            <input type="text" class="form-text" placeholder="Enter your Email Pass Key" @bind=@emailConfiguration.Password /><br />
+                <label>Pass Key</label>
+                <input type="text" class="form-text" placeholder="Enter your Email Pass Key" @bind=@_emailConfiguration.Password /><br />
 
-            <label>Display Name</label>
-            <input type="text" class="form-text" placeholder="Enter your Email Display Name" @bind=@emailConfiguration.DisplayName /><br />
+                <label>Display Name</label>
+                <input type="text" class="form-text" placeholder="Enter your Email Display Name" @bind=@_emailConfiguration.DisplayName /><br />
 
-            @*         <label>Receiver</label><br />
+                @*         <label>Receiver</label><br />
             <input type="text" class="form-text" placeholder="Enter Subject " @bind=@emailConfiguration.Receivers /><br /> *@
 
-            <label>Subject</label>
-            <input type="text" class="form-text" placeholder="Enter Subject " @bind=@emailConfiguration.Subject /><br />
+                <label>Subject</label>
+                <input type="text" class="form-text" placeholder="Enter Subject " @bind=@_emailConfiguration.Subject /><br />
 
-            <label>Message</label>
-            <textarea class="form-text" placeholder="Enter your Message here " rows="10" @bind=@emailConfiguration.Content></textarea><br />
-            
-            <div class="flex-box flex-box--row">
-                <input class="form-text form-button form-text--send" type="submit" value="Send" @onclick="OnSubmit" />
-                <input class="form-text form-button form-text--update" type="submit" value="Update" @onclick="OnUpdate" />
+                <label>Message</label>
+                <textarea class="form-text" placeholder="Enter your Message here " rows="10" @bind=@_emailConfiguration.Content></textarea><br />
+
+                <div class="flex-box flex-box--row">
+                    <input class="form-text form-button form-text--send" type="submit" value="Send" @onclick="OnSubmit" />
+                    <input class="form-text form-button form-text--update" type="submit" value="Update" @onclick="OnUpdate" />
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div>
+        <div class="container">
+
+            <div class="Right">
+                <button @onclick="OnShowUpdateView" class="btn-default">Update</button>
+                <button @onclick="OnSubmit" class="btn-default">Send</button>
+            </div><br/>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="tr">
+                            <th scope="col" class="th">Subject</th>
+                            <th scope="col" class="th">Content</th>
+                            <th scope="col" class="th">Display Name</th>
+                            <th scope="col" class="th">Receiver</th>
+                            <th scope="col" class="th">FilePath</th>
+                            <th scope="col" class="th">FileName</th>
+                            <th scope="col" class="th">PDF</th>
+                            <th scope="col" class="th">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (EmailConfiguration email in _liEmailConfigurationCollection)
+                        {
+                            <tr class="tr">
+                                <td class="noBorder">@email.Subject</td>
+                                <td class="noBorder">@email.Content</td>
+                                <td class="noBorder">@email.DisplayName</td>
+                                <td class="noBorder">
+                                    @foreach (string strReceiver in email.Receivers)
+                                    {
+                                        <span>@strReceiver</span>
+
+                                        <br />
+                                    }
+                                </td>
+                                <td class="noBorder">
+                                    @if (email.Attachment != null)
+                                    {
+                                        @email.Attachment.FilePath
+                                    }
+                                </td>
+                                <td class="noBorder">
+                                    @if (email.Attachment != null)
+                                    {
+                                        @email.Attachment.FileName
+                                    }
+                                </td>
+
+                                <td class="noBorder">
+                                    <span class="svg-pdf" @onclick="@(() => OnShowPDFView(email.Attachment))"></span>
+                                </td>
+
+                                <td class="noBorder">
+                                    <span class="svg-delete" @onclick="@(() => OnDelete(email))"></span>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
 </div>
+
+
+<PDFViewer @bind-Show="ShowPdfView" PdfFilePath="@this.PdfFilePath"></PDFViewer>
