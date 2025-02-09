@@ -6,6 +6,7 @@
 .email-container {
     background-image: linear-gradient(315deg, rgb(0, 15, 64) 0%, rgb(150, 150, 150) 74%);
     padding: 50px;
+    min-height:80vh;
 }
 
 p {
@@ -174,6 +175,7 @@ label {
     z-index: 2;
     top: 0;
     left: 0;
+    backdrop-filter:blur(10px);
 }
 /*toolBar Style */
 .toolBar {
@@ -283,4 +285,11 @@ select#selectTag {
     font-weight: 700;
     outline: none;
     text-align: center;
+}
+
+.empty-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: white;
+    margin-top: 10px;
 }

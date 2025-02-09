@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["css/app.css"]" />
     <link rel="stylesheet" href="@Assets["PDFSender.Web.styles.css"]" />
-    
+
     <script src="js/jquery/jquery.min.js"></script>
     <script src="Application.js"></script>
-    
+
     <script src="js/PDFJS/pdf.js"></script>
     <script src="js/PDFJS/pdfJsInit.js"></script>
-    
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script&family=Finger+Paint&family=Rampart+One&family=Sassy+Frass&display=swap" rel="stylesheet">
 
@@ -26,11 +26,12 @@
 
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 </head>
 
 <body>
-    <Routes />
+
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
     <script src="_framework/blazor.web.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </body>

@@ -53,26 +53,26 @@
         <div class="container">
 
             <div class="Right">
+                <button @onclick="OnClear" class="btn-default">Clear</button>
                 <button @onclick="OnShowUpdateView" class="btn-default">Update</button>
                 <button @onclick="OnSubmit" class="btn-default">Send</button>
-            </div><br/>
+            </div><br />
 
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr class="tr">
-                            <th scope="col" class="th">Subject</th>
-                            <th scope="col" class="th">Content</th>
-                            <th scope="col" class="th">Display Name</th>
-                            <th scope="col" class="th">Receiver</th>
-                            <th scope="col" class="th">FilePath</th>
-                            <th scope="col" class="th">FileName</th>
-                            <th scope="col" class="th">PDF</th>
-                            <th scope="col" class="th">Delete</th>
-                        </tr>
+                    <tr class="tr">
+                        <th scope="col" class="th">Subject</th>
+                        <th scope="col" class="th">Content</th>
+                        <th scope="col" class="th">Display Name</th>
+                        <th scope="col" class="th">Receiver</th>
+                        <th scope="col" class="th">FilePath</th>
+                        <th scope="col" class="th">FileName</th>
+                        <th scope="col" class="th">PDF</th>
+                        <th scope="col" class="th">Delete</th>
+                    </tr>
                     </thead>
                     <tbody>
-
                         @foreach (EmailConfiguration email in _liEmailConfigurationCollection)
                         {
                             <tr class="tr">
@@ -110,8 +110,18 @@
 
                             </tr>
                         }
+                 
                     </tbody>
                 </table>
+                
+                @if (!_liEmailConfigurationCollection.Any())
+                {
+                    <div id="emptyMessage" class="empty-message" >
+                        The table is empty.
+                    </div>
+                    <hr/>
+                }
+               
             </div>
         </div>
     </div>
@@ -119,4 +129,4 @@
 </div>
 
 
-<PDFViewer @bind-Show="ShowPdfView" PdfFilePath="@this.PdfFilePath"></PDFViewer>
+<PDFViewer @bind-Show="ShowPdfView" PdfFilePath="@this.PdfFilePath" PdfByteData="@this.PdfByteData"></PDFViewer>

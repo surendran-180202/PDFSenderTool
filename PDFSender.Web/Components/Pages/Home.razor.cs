@@ -14,17 +14,15 @@ public partial class Home
     private string? MainPath { get; set; } = string.Empty;
 
     private string PdfFilePath { get; set; } = string.Empty;
+    private byte[]? PdfByteData { get; set; }
     private bool ShowPdfView { get; set; }
     private bool ShowUpdateView { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
 
-        _emailConfiguration.Username = "msindialeave@gmail.com";
-        _emailConfiguration.Password = "wxmq bhll fxap amad";
-        _emailConfiguration.Subject = "Test Subject";
-        _emailConfiguration.Content = "Test Content";
+        await GetLocalStoreData();
     }
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
@@ -38,6 +36,8 @@ public partial class Home
         using var ms = new MemoryStream();
         await file.OpenReadStream(10485760).CopyToAsync(ms);
         var buffer = ms.ToArray();
+
+        PdfByteData = buffer;
 
         OnAddEmailAttachment(buffer, file.Name);
 
@@ -56,12 +56,22 @@ public partial class Home
         if (!string.IsNullOrEmpty(MainPath))
         {
             string[] strPdfFiles = Directory.GetFiles(MainPath, "*.pdf", SearchOption.AllDirectories);
+            var services = new Services();
 
             foreach (var strPdfFile in strPdfFiles)
             {
-                var services = new Services();
                 var filePath = strPdfFile.Replace("\\", @"\");
-                string[] strPdfText = services.ConvertToText(filePath);
+                string[] strPdfText;
+                try
+                {
+                    strPdfText = services.ConvertToText(filePath);
+                }
+                catch (Exception ex)
+                {
+                    Js.InvokeVoidAsync("InitiateAlert", $"PDF file reading error - File Name: {Path.GetFileName(strPdfFile)}");
+                    Js.InvokeVoidAsync("AppendConsoleError", ex.ToString());
+                    continue;
+                }
 
                 var email = new EmailConfiguration
                 {
@@ -87,6 +97,13 @@ public partial class Home
 
     private void OnSubmit()
     {
+        if (!_liEmailConfigurationCollection.Any())
+        {
+            Js.InvokeVoidAsync("InitiateAlert", "Please select the Pdf file");
+
+            return;
+        }
+
         var services = new Services();
         services.SendEmail(_liEmailConfigurationCollection.ToArray());
     }
@@ -98,9 +115,6 @@ public partial class Home
 
         var services = new Services();
         _emailConfiguration.Receivers = services.ConvertToText(memoryStream);
-
-        //Using File Path
-        //emailConfiguration.Receivers = services.ConvertToText(@"E:\Temp\Test1.pdf");
     }
 
     private void OnAddEmailAttachment(byte[] pdfStream, string strFileName)
@@ -122,6 +136,13 @@ public partial class Home
         _liEmailConfigurationCollection.Clear();
 
         AddEmailConfigurationCollection();
+
+        SetLocalStoreData();
+    }
+
+    private void OnClear()
+    {
+        this._liEmailConfigurationCollection.Clear();
     }
 
     private void OnShowPDFView(FileConfiguration? fileConfiguration)
@@ -135,7 +156,7 @@ public partial class Home
 
     private void OnShowUpdateView()
     {
-        if (string.IsNullOrEmpty(MainPath) && Js != null)
+        if ((string.IsNullOrEmpty(MainPath) && PdfByteData == null) && Js != null)
         {
             Js.InvokeVoidAsync("InitiateAlert", "Please select the Pdf file");
 
@@ -143,5 +164,29 @@ public partial class Home
         }
 
         ShowUpdateView = true;
+    }
+
+    private void SetLocalStoreData()
+    {
+        LocalStore.SetAsync("Username", _emailConfiguration.Username);
+        LocalStore.SetAsync("Password", _emailConfiguration.Password);
+        LocalStore.SetAsync("DisplayName", _emailConfiguration.DisplayName);
+        LocalStore.SetAsync("Subject", _emailConfiguration.Subject);
+        LocalStore.SetAsync("Content", _emailConfiguration.Content);
+    }
+
+    private async Task GetLocalStoreData()
+    {
+        var username = await LocalStore.GetAsync<string>("Username");
+        var password = await LocalStore.GetAsync<string>("Password");
+        var displayName = await LocalStore.GetAsync<string>("DisplayName");
+        var subject = await LocalStore.GetAsync<string>("Subject");
+        var content = await LocalStore.GetAsync<string>("Content");
+
+        _emailConfiguration.Username = username.Success ? username.Value : string.Empty;
+        _emailConfiguration.Password = password.Success ? password.Value : string.Empty;
+        _emailConfiguration.DisplayName = displayName.Success ? displayName.Value : string.Empty;
+        _emailConfiguration.Subject = subject.Success ? subject.Value : string.Empty;
+        _emailConfiguration.Content = content.Success ? content.Value : string.Empty;
     }
 }

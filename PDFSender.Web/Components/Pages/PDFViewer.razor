@@ -49,11 +49,19 @@
 
     [Parameter] public string? PdfFilePath { get; set; }
 
+    [Parameter] public byte[]? PdfByteData { get; set; }
+
     [Parameter] public EventCallback<bool> ShowChanged { get; set; }
 
     private void HideOverlay()
     {
         ShowChanged.InvokeAsync(false);
+
+        PdfByteData = null;
+
+        PdfFilePath = null;
+
+        Js.InvokeVoidAsync("HideOverlay");
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -62,11 +70,12 @@
 
         if (string.IsNullOrEmpty(PdfFilePath) && !Show) return;
 
-        if (PdfFilePath != null && Js != null)
+        if (PdfByteData != null || PdfFilePath != null && Js != null)
         {
-            var fileBytes = File.ReadAllBytes(PdfFilePath);
+            var fileBytes = PdfByteData ?? File.ReadAllBytes(PdfFilePath);
 
             Js.InvokeVoidAsync("RenderPDF", fileBytes);
+            Js.InvokeVoidAsync("ShowOverlay");
         }
     }
 }

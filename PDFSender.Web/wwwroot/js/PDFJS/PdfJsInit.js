@@ -163,3 +163,8 @@ function DownloadFile()
         URL.revokeObjectURL(href);
     });
 };
+
+function AppendConsoleError(strException)
+{
+    console.log(strException);
+}

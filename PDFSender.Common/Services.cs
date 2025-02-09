@@ -7,12 +7,6 @@ namespace PDFSender.Common
 {
     public class Services
     {
-        public void SendEmail(EmailConfiguration email)
-        {
-            var emailHandler = new EmailHandler(email.Username, email.Password, email.DisplayName);
-            emailHandler.SendMail(email.Subject, email.Content, email.Receivers, email.Attachment);
-        }
-
         public void SendEmail(EmailConfiguration[] emailCollection)
         {
             EmailHandler emailHandler = null;

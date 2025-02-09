@@ -2,6 +2,7 @@
 @using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.AspNetCore.Components.Web
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
@@ -10,3 +11,4 @@
 @using PDFSender.Web.Components
 
 @inject IJSRuntime Js
+@inject ProtectedLocalStorage LocalStore
