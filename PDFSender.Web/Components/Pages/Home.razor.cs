@@ -77,6 +77,7 @@ public partial class Home
                 {
                     Username = _emailConfiguration.Username,
                     Password = _emailConfiguration.Password,
+                    DisplayName = _emailConfiguration.DisplayName,
                     Subject = _emailConfiguration.Subject,
                     Content = _emailConfiguration.Content,
                     Receivers = strPdfText,

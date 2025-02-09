@@ -47,8 +47,6 @@ namespace PDFSender.Common.Handlers
             if (stream == null || !stream.CanRead)
                 throw new ArgumentException("Invalid PDF stream");
 
-            //stream.Seek(0, SeekOrigin.Begin);
-
             var pdfDocument = new Document(stream);
 
             var sbText = new StringBuilder();

@@ -1,6 +1,6 @@
 ﻿/* PDFJS integration script */
 
-var url;/* = 'E:/Temp/PDF Sender Folder/PDF2.pdf';*/
+var url;
 var changescale = 5;
 function ShowOverlay()
 {
@@ -16,13 +16,11 @@ function HideOverlay()
 
 function RenderPDF(blobData)
 {
-    //url= strUrl;
-
     var canvasContainer = document.getElementById('canvasContainer');
     var pdfDocument;
 
     const blob = new Blob([blobData], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
+    url = URL.createObjectURL(blob);
 
     pdfjsLib.getDocument(url).promise.then(RenderPages);
     function RenderPages(pdfDoc)
