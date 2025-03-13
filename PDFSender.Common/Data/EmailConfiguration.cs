@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PDFSender.Common.Data
+﻿namespace PDFSender.Common.Data
 {
     public class EmailConfiguration
     {

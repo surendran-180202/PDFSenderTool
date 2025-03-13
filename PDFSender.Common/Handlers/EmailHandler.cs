@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -8,22 +9,6 @@ namespace PDFSender.Common.Handlers
 {
     internal class EmailHandler
     {
-        #region Constants
-
-        private const string SMTP_HOST = "smtp.gmail.com";
-        private const int SMTP_PORT = 587;
-        private const string MAIL_SENDER = "msindialeave@gmail.com";
-        private const string SENDER_PASSWORD = "wxmq bhll fxap amad";
-        private const string DISPLAY_NAME = "MSI Task Reminder";
-
-        private string SmtpHost { get; set; }
-        private int SmtpPort { get; set; }
-        private string MailSender { get; }
-        private string MailPasskey { get; }
-        private string MailDisplayName { get; }
-
-        #endregion
-
         internal EmailHandler(string strMailSender, string strMailPasskey, string strMailDisplayName)
         {
             SmtpHost = SMTP_HOST;
@@ -45,9 +30,27 @@ namespace PDFSender.Common.Handlers
 
             MailDisplayName = mailDisplayName ?? DISPLAY_NAME;
         }
+
+        #region Constants
+
+        private const string SMTP_HOST = "smtp.gmail.com";
+        private const int SMTP_PORT = 587;
+        private const string MAIL_SENDER = "msindialeave@gmail.com";
+        private const string SENDER_PASSWORD = "wxmq bhll fxap amad";
+        private const string DISPLAY_NAME = "MSI Task Reminder";
+
+        private string SmtpHost { get; set; }
+        private int SmtpPort { get; set; }
+        private string MailSender { get; }
+        private string MailPasskey { get; }
+        private string MailDisplayName { get; }
+
+        #endregion
+
         #region Privates
 
-        internal bool SendMail(string strSubject, string strContent, string[] strReceivers, FileConfiguration fileConfiguration)
+        internal bool SendMail(string strSubject, string strContent, string[] strReceivers,
+            FileConfiguration fileConfiguration)
         {
             var mailMessage = PrepareMailContent(strSubject, strContent);
 
@@ -69,13 +72,13 @@ namespace PDFSender.Common.Handlers
 
         private MailMessage PrepareMailContent(string strSubject, string strEmailContent)
         {
-            MailAddress mailSender = new MailAddress(MailSender, MailDisplayName);
+            var mailSender = new MailAddress(MailSender, MailDisplayName);
 
-            MailMessage mailMessage = new MailMessage
+            var mailMessage = new MailMessage
             {
                 From = mailSender,
                 Subject = strSubject,
-                Body = strEmailContent,
+                Body = strEmailContent
             };
 
             return mailMessage;
@@ -94,27 +97,24 @@ namespace PDFSender.Common.Handlers
 
             Attachment attachment = null;
             if (fileConfiguration.FilePath != null)
-            {
                 attachment = new Attachment(fileConfiguration.FilePath);
-            }
             else if (fileConfiguration.Attachment != null)
-            {
-                attachment = new Attachment(new System.IO.MemoryStream(fileConfiguration.Attachment), fileConfiguration.FileName, "application/pdf");
-            }
-            
+                attachment = new Attachment(new MemoryStream(fileConfiguration.Attachment), fileConfiguration.FileName,
+                    "application/pdf");
+
             mailMessage.Attachments.Add(attachment);
         }
 
         private void SendMail(MailMessage mailMessage)
         {
-            NetworkCredential networkCred = new NetworkCredential(MailSender, MailPasskey);
+            var networkCred = new NetworkCredential(MailSender, MailPasskey);
 
-            SmtpClient smtp = new SmtpClient
+            var smtp = new SmtpClient
             {
                 Host = SMTP_HOST,
                 Port = SMTP_PORT,
                 EnableSsl = true,
-                Credentials = networkCred,
+                Credentials = networkCred
             };
             smtp.Send(mailMessage);
         }

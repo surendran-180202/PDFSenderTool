@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Aspose.Pdf;
-using Aspose.Pdf.Annotations;
 using Aspose.Pdf.Text;
 
 namespace PDFSender.Common.Handlers
@@ -29,17 +28,7 @@ namespace PDFSender.Common.Handlers
 
         internal string ConvertToText(string strFilePath)
         {
-            var pdfDocument = new Document(strFilePath);
-
-            var sbText = new StringBuilder();
-            for (var page = 1; page <= pdfDocument.Pages.Count; page++)
-            {
-                var textAbsorber = new TextAbsorber();
-                pdfDocument.Pages[page].Accept(textAbsorber);
-                sbText.Append(textAbsorber.Text);
-            }
-
-            return sbText.ToString();
+            return GetTextFromPdf(new Document(strFilePath));
         }
 
         internal string ConvertToText(MemoryStream stream)
@@ -47,8 +36,11 @@ namespace PDFSender.Common.Handlers
             if (stream == null || !stream.CanRead)
                 throw new ArgumentException("Invalid PDF stream");
 
-            var pdfDocument = new Document(stream);
+            return GetTextFromPdf(new Document(stream));
+        }
 
+        private string GetTextFromPdf(Document pdfDocument)
+        {
             var sbText = new StringBuilder();
             for (var page = 1; page <= pdfDocument.Pages.Count; page++)
             {
