@@ -61,21 +61,26 @@
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                    <tr class="tr">
-                        <th scope="col" class="th">Subject</th>
-                        <th scope="col" class="th">Content</th>
-                        <th scope="col" class="th">Display Name</th>
-                        <th scope="col" class="th">Receiver</th>
-                        <th scope="col" class="th">FilePath</th>
-                        <th scope="col" class="th">FileName</th>
-                        <th scope="col" class="th">PDF</th>
-                        <th scope="col" class="th">Delete</th>
-                    </tr>
+                        <tr class="tr">
+                            <th scope="col" class="th"><InputCheckbox @bind-Value="IsSelectAll" @onclick="SelectAll" /> </th>
+                            <th scope="col" class="th">Subject</th>
+                            <th scope="col" class="th">Content</th>
+                            <th scope="col" class="th">Display Name</th>
+                            <th scope="col" class="th">Receiver</th>
+                            <th scope="col" class="th">FilePath</th>
+                            <th scope="col" class="th">FileName</th>
+                            <th scope="col" class="th">PDF</th>
+                            <th scope="col" class="th">Delete</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach (EmailConfiguration email in _liEmailConfigurationCollection)
                         {
                             <tr class="tr">
+                                <td class="noBorder">
+                                    <input type="checkbox" @bind-value="@email.IsSelected" checked="@email.IsSelected">
+                                </td>
+
                                 <td class="noBorder">@email.Subject</td>
                                 <td class="noBorder">@email.Content</td>
                                 <td class="noBorder">@email.DisplayName</td>
@@ -110,10 +115,10 @@
 
                             </tr>
                         }
-                 
+
                     </tbody>
                 </table>
-                
+
                 @if (!_liEmailConfigurationCollection.Any())
                 {
                     <div id="emptyMessage" class="empty-message" >
@@ -121,7 +126,7 @@
                     </div>
                     <hr/>
                 }
-               
+
             </div>
         </div>
     </div>
