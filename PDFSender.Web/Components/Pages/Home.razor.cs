@@ -18,6 +18,8 @@ public partial class Home
     private bool ShowPdfView { get; set; }
     private bool ShowUpdateView { get; set; }
 
+    private bool IsSelectAll { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -106,7 +108,10 @@ public partial class Home
         }
 
         var services = new Services();
-        services.SendEmail(_liEmailConfigurationCollection.ToArray());
+
+        services.SendEmail(!_liEmailConfigurationCollection.Any(row => row.IsSelected)
+            ? _liEmailConfigurationCollection.ToArray()
+            : _liEmailConfigurationCollection.Where(row => row.IsSelected).ToArray());
     }
 
     private async Task OnConvertToText(Stream pdfStream)
@@ -189,5 +194,18 @@ public partial class Home
         _emailConfiguration.DisplayName = displayName.Success ? displayName.Value : string.Empty;
         _emailConfiguration.Subject = subject.Success ? subject.Value : string.Empty;
         _emailConfiguration.Content = content.Success ? content.Value : string.Empty;
+    }
+
+    private void SelectAll()
+    {
+        IsSelectAll = !IsSelectAll;
+
+        foreach (EmailConfiguration emailConfiguration in _liEmailConfigurationCollection)
+        {
+            if (IsSelectAll) emailConfiguration.IsSelected = true;
+            else emailConfiguration.IsSelected = false;
+        }
+
+        StateHasChanged();
     }
 }

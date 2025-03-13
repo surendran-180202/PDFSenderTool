@@ -6,7 +6,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<BlazorWebAssemblyEnableSourceMap>true</BlazorWebAssemblyEnableSourceMap>
 		<BlazorEnableSourceMaps>false</BlazorEnableSourceMaps>
-		<DebugType>none</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>
