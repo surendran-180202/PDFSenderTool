@@ -107,6 +107,12 @@ public partial class Home
             return;
         }
 
+        if (!ValidateEmail())
+        {
+            ShowUpdateView = true;
+            return;
+        }
+
         var services = new Services();
 
         services.SendEmail(!_liEmailConfigurationCollection.Any(row => row.IsSelected)
@@ -207,5 +213,24 @@ public partial class Home
         }
 
         StateHasChanged();
+    }
+
+    private bool ValidateEmail()
+    {
+        bool bResult = true;
+
+        if (string.IsNullOrEmpty(this._emailConfiguration.Username))
+        {
+            Js.InvokeVoidAsync("InitiateAlert", "Please Enter Email ID");
+            bResult = false;
+        }
+        else if (string.IsNullOrEmpty(this._emailConfiguration.Password))
+        {
+            Js.InvokeVoidAsync("InitiateAlert", "Please Enter PassKey");
+
+            bResult = false;
+        }
+
+        return bResult;
     }
 }

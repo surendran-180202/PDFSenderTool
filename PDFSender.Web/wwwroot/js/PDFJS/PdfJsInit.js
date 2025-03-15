@@ -117,13 +117,13 @@ function PDFWidthChange()
     if(document.getElementById('canvasContainer').style.width !== "100%")
     {
         document.getElementById('canvasContainer').style.width = "100%";
-        document.getElementById('ToggleIcon').className = "fa fa-square-o";
+        document.getElementById('ToggleIcon').className = "far fa-clone";
         document.getElementById('selectTag').options[0].innerHTML = "100%";
     }
     else
     {
         document.getElementById('canvasContainer').style.width = "75%";
-        document.getElementById('ToggleIcon').className = "far fa-clone";
+        document.getElementById('ToggleIcon').className = "fa fa-square-o";
         document.getElementById('selectTag').options[0].innerHTML = "75%";
     }
 }
