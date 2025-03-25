@@ -11,8 +11,8 @@ namespace PDFSender.Common.Handlers
     {
         internal EmailHandler(string strMailSender, string strMailPasskey, string strMailDisplayName)
         {
-            SmtpHost = SMTP_HOST;
-            SmtpPort = SMTP_PORT;
+            SmtpHost = "smtp.gmail.com";
+            SmtpPort = 587;
 
             MailSender = strMailSender;
             MailPasskey = strMailPasskey;
@@ -22,25 +22,19 @@ namespace PDFSender.Common.Handlers
         internal EmailHandler(string strSmtpHost, int strSmtpPort, string strMailSender, string strPasskey,
             string mailDisplayName)
         {
-            SmtpHost = strSmtpHost ?? SMTP_HOST;
-            SmtpPort = strSmtpPort == 0 ? SMTP_PORT : strSmtpPort;
+            SmtpHost = strSmtpHost ?? "smtp.gmail.com";
+            SmtpPort = strSmtpPort == 0 ? 587 : strSmtpPort;
 
-            MailSender = strMailSender ?? MAIL_SENDER;
-            MailPasskey = strPasskey ?? SENDER_PASSWORD;
+            MailSender = strMailSender;
+            MailPasskey = strPasskey;
 
-            MailDisplayName = mailDisplayName ?? DISPLAY_NAME;
+            MailDisplayName = mailDisplayName;
         }
 
         #region Constants
 
-        private const string SMTP_HOST = "smtp.gmail.com";
-        private const int SMTP_PORT = 587;
-        private const string MAIL_SENDER = "msindialeave@gmail.com";
-        private const string SENDER_PASSWORD = "wxmq bhll fxap amad";
-        private const string DISPLAY_NAME = "MSI Task Reminder";
-
-        private string SmtpHost { get; set; }
-        private int SmtpPort { get; set; }
+        private string SmtpHost { get; }
+        private int SmtpPort { get; }
         private string MailSender { get; }
         private string MailPasskey { get; }
         private string MailDisplayName { get; }
@@ -65,6 +59,8 @@ namespace PDFSender.Common.Handlers
             catch (Exception ex)
             {
                 var strException = ex.ToString();
+
+                return false;
             }
 
             return true;
@@ -111,8 +107,8 @@ namespace PDFSender.Common.Handlers
 
             var smtp = new SmtpClient
             {
-                Host = SMTP_HOST,
-                Port = SMTP_PORT,
+                Host = SmtpHost,
+                Port = SmtpPort,
                 EnableSsl = true,
                 Credentials = networkCred
             };
