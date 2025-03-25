@@ -1,13 +1,12 @@
 ﻿@page "/"
-@using PDFSender.Common.Data
 
 @rendermode InteractiveServer
 
 <h3>PDF To Email Sender</h3>
 
 <div class="flex-box flex-box--row">
-    <InputFile class="form-text large-box" accept=".pdf" OnChange="OnFileSelected" />
-    <input type="text" class="form-text large-box" placeholder="Enter Folder (or) PDF file Path " @onchange="OnPastePath" />
+    <InputFile class="form-text large-box" accept=".pdf" OnChange="OnFileSelected"/>
+    <input type="text" class="form-text large-box" placeholder="Enter Folder (or) PDF file Path " @onchange="OnPastePath"/>
 </div>
 
 <div class="email-container">
@@ -23,30 +22,26 @@
 
             <div class="col-md-4 form-box center">
                 <label>Email ID</label>
-                <input type="text" class="form-text" placeholder="Enter your Email ID " @bind=@_emailConfiguration.Username /><br />
+                <input type="text" class="form-text" placeholder="Enter your Email ID " @bind=@_emailConfiguration.Username/><br/>
 
                 <label>Pass Key</label>
-                <input type="text" class="form-text" placeholder="Enter your Email Pass Key" @bind=@_emailConfiguration.Password /><br />
+                <input type="text" class="form-text" placeholder="Enter your Email Pass Key" @bind=@_emailConfiguration.Password/><br/>
 
                 <label>Display Name</label>
-                <input type="text" class="form-text" placeholder="Enter your Email Display Name" @bind=@_emailConfiguration.DisplayName /><br />
-
-                @*         <label>Receiver</label><br />
-            <input type="text" class="form-text" placeholder="Enter Subject " @bind=@emailConfiguration.Receivers /><br /> *@
+                <input type="text" class="form-text" placeholder="Enter your Email Display Name" @bind=@_emailConfiguration.DisplayName/><br/>
 
                 <label>Subject</label>
-                <input type="text" class="form-text" placeholder="Enter Subject " @bind=@_emailConfiguration.Subject /><br />
+                <input type="text" class="form-text" placeholder="Enter Subject " @bind=@_emailConfiguration.Subject/><br/>
 
                 <label>Message</label>
-                <textarea class="form-text" placeholder="Enter your Message here " rows="10" @bind=@_emailConfiguration.Content></textarea><br />
+                <textarea class="form-text" placeholder="Enter your Message here " rows="10" @bind=@_emailConfiguration.Content></textarea><br/>
 
                 <div class="flex-box flex-box--row">
-                    <input class="form-text form-button form-text--send" type="submit" value="Send" @onclick="OnSubmit" />
-                    <input class="form-text form-button form-text--update" type="submit" value="Update" @onclick="OnUpdate" />
+                    <input class="form-text form-button form-text--send" type="submit" value="Send" @onclick="OnSubmit"/>
+                    <input class="form-text form-button form-text--update" type="submit" value="Update" @onclick="OnUpdate"/>
                 </div>
             </div>
         </div>
-
     }
 
     <div>
@@ -56,72 +51,81 @@
                 <button @onclick="OnClear" class="btn-default">Clear</button>
                 <button @onclick="OnShowUpdateView" class="btn-default">Update</button>
                 <button @onclick="OnSubmit" class="btn-default">Send</button>
-            </div><br />
+            </div><br/>
 
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr class="tr">
-                            <th scope="col" class="th"><InputCheckbox @bind-Value="IsSelectAll" @onclick="SelectAll" /> </th>
-                            <th scope="col" class="th">Subject</th>
-                            <th scope="col" class="th">Content</th>
-                            <th scope="col" class="th">Display Name</th>
-                            <th scope="col" class="th">Receiver</th>
-                            <th scope="col" class="th">FilePath</th>
-                            <th scope="col" class="th">FileName</th>
-                            <th scope="col" class="th">PDF</th>
-                            <th scope="col" class="th">Delete</th>
-                        </tr>
+                    <tr class="tr">
+                        <th scope="col" class="th">
+                            <InputCheckbox @bind-Value="IsSelectAll" @onclick="SelectAll"/>
+                        </th>
+                        <th scope="col" class="th">Subject</th>
+                        <th scope="col" class="th">Content</th>
+                        <th scope="col" class="th">Display Name</th>
+                        <th scope="col" class="th">Receiver</th>
+                        <th scope="col" class="th">FilePath</th>
+                        <th scope="col" class="th">FileName</th>
+                        <th scope="col" class="th">PDF</th>
+                        <th scope="col" class="th">Delete</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @foreach (EmailConfiguration email in _liEmailConfigurationCollection)
-                        {
-                            <tr class="tr">
-                                <td class="noBorder">
+                    @foreach (var email in _liEmailConfigurationCollection)
+                    {
+                        <tr class="tr">
+                            <td class="noBorder">
+                                @if (IsSentEmail(email))
+                                {
+                                    <input type="checkbox" @bind-value="@email.IsSelected" checked="@email.IsSelected" disabled>
+                                }
+                                else
+                                {
                                     <input type="checkbox" @bind-value="@email.IsSelected" checked="@email.IsSelected">
-                                </td>
+                                }
+                            </td>
 
-                                <td class="noBorder">@email.Subject</td>
-                                <td class="noBorder">@email.Content</td>
-                                <td class="noBorder">@email.DisplayName</td>
-                                <td class="noBorder">
-                                    @foreach (string strReceiver in email.Receivers)
-                                    {
-                                        <span>@strReceiver</span>
+                            <td class="noBorder">@email.Subject</td>
+                            <td class="noBorder">@email.Content</td>
+                            <td class="noBorder">@email.DisplayName</td>
+                            <td class="noBorder">
+                                @foreach (var strReceiver in email.Receivers)
+                                {
+                                    <span>@strReceiver</span>
 
-                                        <br />
-                                    }
-                                </td>
-                                <td class="noBorder">
-                                    @if (email.Attachment != null)
-                                    {
-                                        @email.Attachment.FilePath
-                                    }
-                                </td>
-                                <td class="noBorder">
-                                    @if (email.Attachment != null)
-                                    {
-                                        @email.Attachment.FileName
-                                    }
-                                </td>
+                                    <br/>
+                                }
+                            </td>
+                            <td class="noBorder">
+                                @if (email.Attachment != null)
+                                {
+                                    @email.Attachment.FilePath
+                                }
+                            </td>
+                            <td class="noBorder">
+                                @if (email.Attachment != null)
+                                {
+                                    @email.Attachment.FileName
+                                }
+                            </td>
 
-                                <td class="noBorder">
-                                    <span class="svg-pdf" @onclick="@(() => OnShowPDFView(email.Attachment))"></span>
-                                </td>
+                            <td class="noBorder">
+                                <span class="svg-pdf" @onclick="@(() => OnShowPDFView(email.Attachment))"></span>
+                            </td>
 
-                                <td class="noBorder">
-                                    <span class="svg-delete" @onclick="@(() => OnDelete(email))"></span>
-                                </td>
+                            <td class="noBorder">
+                                <span class="svg-delete" @onclick="@(() => OnDelete(email))"></span>
+                            </td>
 
-                            </tr>
-                        }
+                        </tr>
+                    }
 
                     </tbody>
                 </table>
 
                 @if (!_liEmailConfigurationCollection.Any())
                 {
-                    <div id="emptyMessage" class="empty-message" >
+                    <div id="emptyMessage" class="empty-message">
                         The table is empty.
                     </div>
                     <hr/>
@@ -134,4 +138,4 @@
 </div>
 
 
-<PDFViewer @bind-Show="ShowPdfView" PdfFilePath="@this.PdfFilePath" PdfByteData="@this.PdfByteData"></PDFViewer>
+<PDFViewer @bind-Show="ShowPdfView" PdfFilePath="@PdfFilePath" PdfByteData="@PdfByteData"></PDFViewer>

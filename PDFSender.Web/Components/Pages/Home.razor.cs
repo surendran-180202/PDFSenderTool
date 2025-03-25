@@ -9,16 +9,22 @@ namespace PDFSender.Web.Components.Pages;
 public partial class Home
 {
     private readonly EmailConfiguration _emailConfiguration = new();
+
     private readonly List<EmailConfiguration> _liEmailConfigurationCollection = new();
 
     private string? MainPath { get; set; } = string.Empty;
 
     private string PdfFilePath { get; set; } = string.Empty;
+
     private byte[]? PdfByteData { get; set; }
+
     private bool ShowPdfView { get; set; }
+
     private bool ShowUpdateView { get; set; }
 
     private bool IsSelectAll { get; set; }
+
+    private string? SentEmailUqId { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,9 +121,15 @@ public partial class Home
 
         var services = new Services();
 
-        services.SendEmail(!_liEmailConfigurationCollection.Any(row => row.IsSelected)
+        var emailConfiguration = !_liEmailConfigurationCollection.Any(row => row.IsSelected)
             ? _liEmailConfigurationCollection.ToArray()
-            : _liEmailConfigurationCollection.Where(row => row.IsSelected).ToArray());
+            : _liEmailConfigurationCollection.Where(row => row.IsSelected).ToArray();
+
+        services.SendEmail(emailConfiguration.ToList().Where(row => !IsSentEmail(row)).ToArray());
+        
+        UpdateStatus(emailConfiguration);
+
+        GetStatus();
     }
 
     private async Task OnConvertToText(Stream pdfStream)
@@ -154,7 +166,7 @@ public partial class Home
 
     private void OnClear()
     {
-        this._liEmailConfigurationCollection.Clear();
+        _liEmailConfigurationCollection.Clear();
     }
 
     private void OnShowPDFView(FileConfiguration? fileConfiguration)
@@ -168,7 +180,7 @@ public partial class Home
 
     private void OnShowUpdateView()
     {
-        if ((string.IsNullOrEmpty(MainPath) && PdfByteData == null) && Js != null)
+        if (string.IsNullOrEmpty(MainPath) && PdfByteData == null && Js != null)
         {
             Js.InvokeVoidAsync("InitiateAlert", "Please select the Pdf file");
 
@@ -206,7 +218,7 @@ public partial class Home
     {
         IsSelectAll = !IsSelectAll;
 
-        foreach (EmailConfiguration emailConfiguration in _liEmailConfigurationCollection)
+        foreach (EmailConfiguration emailConfiguration in _liEmailConfigurationCollection.Where(row => !IsSentEmail(row)))
         {
             if (IsSelectAll) emailConfiguration.IsSelected = true;
             else emailConfiguration.IsSelected = false;
@@ -219,12 +231,12 @@ public partial class Home
     {
         bool bResult = true;
 
-        if (string.IsNullOrEmpty(this._emailConfiguration.Username))
+        if (string.IsNullOrEmpty(_emailConfiguration.Username))
         {
             Js.InvokeVoidAsync("InitiateAlert", "Please Enter Email ID");
             bResult = false;
         }
-        else if (string.IsNullOrEmpty(this._emailConfiguration.Password))
+        else if (string.IsNullOrEmpty(_emailConfiguration.Password))
         {
             Js.InvokeVoidAsync("InitiateAlert", "Please Enter PassKey");
 
@@ -232,5 +244,27 @@ public partial class Home
         }
 
         return bResult;
+    }
+
+    private async Task UpdateStatus(EmailConfiguration[] emailConfigurationCollection)
+    {
+        var sentEmailUqIdCollection = emailConfigurationCollection.Select(row => row.UqId).ToArray();
+
+        await SessionStore.SetAsync("sentEmails", string.Join(", ", sentEmailUqIdCollection));
+    }
+
+    private async Task GetStatus()
+    {
+        var sentEmails = await SessionStore.GetAsync<string>("sentEmails");
+
+        SentEmailUqId = sentEmails.Success ? sentEmails.Value : string.Empty;
+
+        StateHasChanged();
+    }
+
+    private bool IsSentEmail(EmailConfiguration emailConfiguration)
+    {
+        return SentEmailUqId != null
+               && SentEmailUqId.Contains(emailConfiguration.UqId.ToString());
     }
 }
