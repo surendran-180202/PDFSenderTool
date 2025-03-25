@@ -31,6 +31,10 @@ label {
     padding: 5px;
     font-family: 'Poppins', sans-serif;
     outline: none;
+    resize: none;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: gray rgba(0,0,0,0.2);
 }
 
     .form-text:focus {
@@ -104,6 +108,11 @@ label {
     color: white !important;
 }
 
+.table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
 .noBorder {
     border: none !important;
 }
@@ -170,7 +179,6 @@ label {
 
 
 /*PDF Viwer style*/
-
 .MainContainer {
     position: fixed;
     width: 100%;
